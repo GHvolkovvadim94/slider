@@ -10,6 +10,7 @@ public class FollowingText : MonoBehaviour
     [SerializeField]
     float offset;
     private Cursor cursor;
+
     private void Start()
     {
         cursor = FindFirstObjectByType<Cursor>();

@@ -8,21 +8,17 @@ public class Area : MonoBehaviour
 
     private float speed = 2f;
     private Vector3 direction = Vector3.right;
-    private bool canChangeDirection = true; // ‘лаг дл€ разрешени€ изменени€ направлени€
-
+    private bool canChangeDirection = true;
     void Start()
     {
         slider = FindFirstObjectByType<Slider>();
         CurrentBounds = BoundsCalculator.GetBounds(gameObject.transform, this);
         StartCoroutine(RandomDirectionChange());
-        //Debug.Log($"{GetType().Name} bounds on Start: left: {CurrentBounds.Min}; right: {CurrentBounds.Max}");
     }
 
     void Update()
     {
-        //ƒвигаем область
         MoveArea();
-        // ќбновл€ем границы при каждом кадре
         UpdateBounds();
     }
 
@@ -39,17 +35,17 @@ public class Area : MonoBehaviour
         {
             ChangeMoveDirection();
         }
+
     }
 
     private bool IsInSliderBound()
     {
-        return CurrentBounds.Min >= slider.Bounds.Min && CurrentBounds.Max <= slider.Bounds.Max;
+        return CurrentBounds.Min > slider.Bounds.Min && CurrentBounds.Max < slider.Bounds.Max;
     }
 
     private void ChangeMoveDirection()
     {
         direction = -direction;
-        Debug.Log("ћен€ю направление");
         StartCoroutine(DisallowDirectionChange());
     }
 
@@ -63,11 +59,12 @@ public class Area : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(Random.Range(2f, 5f)); // ∆дем случайное врем€ 
+            yield return new WaitForSeconds(Random.Range(2f, 5f));
             if (canChangeDirection)
             {
                 ChangeMoveDirection();
             }
+
         }
     }
 }

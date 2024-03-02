@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 
@@ -12,6 +13,9 @@ public class Cursor : MonoBehaviour
     private TextMeshProUGUI scoreText;
 
     public Bounds Bounds { get; private set; }
+
+    [SerializeField]
+    private float pushDistance = 2;
 
     private float speed = 4f;
     private Vector3 direction = Vector3.left;
@@ -32,14 +36,13 @@ public class Cursor : MonoBehaviour
         area = FindFirstObjectByType<Area>();
         areaSpriteRenderer = area.GetComponent<SpriteRenderer>();
         Bounds = BoundsCalculator.GetBounds(gameObject.transform, this);
-        //Debug.Log($"{GetType().Name} bounds on Start: left: {CurrentBounds.Min}; right: {CurrentBounds.Max}");
     }
 
     void Update()
     {
         MoveCursor();
+        // ќбновл€ем границы курсора
         UpdateBounds();
-
         if (isInArea()) onAreaEnter();
 
         if (!isInArea()) onAreaExit();
@@ -89,40 +92,33 @@ public class Cursor : MonoBehaviour
     {
         // ѕеремещаем курсор
         transform.Translate(direction * speed * Time.deltaTime);
-
-        // ѕровер€ем, не выходит ли курсор за границы слайдера
+        // ѕримен€ем ограничени€ позиции курсора
         ClampCursorToSliderBounds();
+
+
     }
 
     public void PushCursorRight()
     {
         // ѕеремещаем курсор на 1 единицу вправо от текущей позиции
-        Vector3 newPosition = new Vector3(Bounds.Max, 0, 0) + Vector3.right * 1f;
-        // ѕровер€ем, не выходит ли нова€ позици€ за границы слайдера
-        if (newPosition.x >= slider.Bounds.Max - Bounds.Center)
-        {
+        Vector3 newPosition = transform.position + Vector3.right * pushDistance;
+        // ѕримен€ем ограничени€ позиции курсора
+        // ”станавливаем новую позицию курсора
+        transform.position = newPosition;
+        ClampCursorToSliderBounds();
 
-            newPosition.x = slider.Bounds.Max - Bounds.Center;
-        }
+    }
+
+
+    private void ClampCursorToSliderBounds()
+    {
+        Vector3 newPosition = transform.position;
+        // ≈сли курсор выходит за границы слайдера, ограничиваем его позицию
+        newPosition.x = Mathf.Clamp(newPosition.x, slider.Bounds.Min + Bounds.Center, slider.Bounds.Max - Bounds.Center);
         transform.position = newPosition;
 
     }
 
-
-    private Vector3 GetClampedPosition()
-    {
-        Vector3 newPosition = transform.position;
-        newPosition.x = Mathf.Clamp(newPosition.x, slider.Bounds.Min + Bounds.Center, slider.Bounds.Max - Bounds.Center);
-        return newPosition;
-    }
-    private void ClampCursorToSliderBounds()
-    {
-        // ≈сли курсор выходит за границы слайдера, ограничиваем его позицию
-        if (Bounds.Min <= slider.Bounds.Min || Bounds.Max >= slider.Bounds.Max)
-        {
-            transform.position = GetClampedPosition();
-        }
-    }
 
     private bool isInArea()
     {
